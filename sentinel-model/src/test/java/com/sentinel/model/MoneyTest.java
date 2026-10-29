@@ -48,4 +48,22 @@ public class MoneyTest {
     void shouldThrowExceptionOnBothNullValues() {
         assertThrows(IllegalArgumentException.class, () -> Money.of(null, null));
     }
+
+    @Test
+    void subtractOneAmountFromAnotherSameCurrency() {
+        var subs = Money.of("10", "CAD").minus(Money.of("5", "CAD"));
+        assertThat(subs).isEqualTo(Money.of("5", "CAD"));
+    }
+
+    @Test
+    void subtractOneAmountFromAnother() {
+        var subs = Money.of("5.00", "CAD").minus(Money.of("7.50", "CAD"));
+        assertThat(subs).isEqualTo(Money.of("-2.50", "CAD"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnSubtractingDifferentCurrencies() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10", "CAD")
+                .minus(Money.of("2.25", "USD")));
+    }
 }
