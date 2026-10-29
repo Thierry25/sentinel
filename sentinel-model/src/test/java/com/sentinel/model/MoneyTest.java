@@ -33,7 +33,7 @@ public class MoneyTest {
 
     @Test
     void shouldThrowExceptionOnUnknownCurrency() {
-        assertThrows(IllegalArgumentException.class, () -> Money.of("10.6792", "XYZ"));
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10", "XYZ"));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class MoneyTest {
 
     @Test
     void shouldThrowExceptionOnOnlyCurrency() {
-        assertThrows(IllegalArgumentException.class, () -> Money.of(null, "XYZ"));
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10", null));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class MoneyTest {
         var subs = Money.of("5.00", "CAD").minus(Money.of("7.50", "CAD"));
         var result = Money.of("-2.50", "CAD");
         assertThat(subs).isEqualTo(result);
-        assertTrue(result.isNegative());
+        assertTrue(subs.isNegative());
     }
 
     @Test
@@ -76,22 +76,16 @@ public class MoneyTest {
         assertTrue(Money.of("-2.50", "CAD").isNegative());
     }
 
+
     @Test
-    void shouldThrowExceptionOnMultiplyingDifferentCurrencies() {
-        assertThrows(IllegalArgumentException.class, () -> Money.of("10", "CAD")
-                .times(Money.of("2.25", "USD")));
+    void priceTimesQuantityGivesTheNotional() {
+        assertThat(Money.of("230.00", "USD").times(100)).isEqualTo(Money.of("23000.00", "USD"));
     }
 
     @Test
-    void shouldAllowToMultiplyTwoValues() {
-        var result = Money.of("1", "CAD").times(Money.of("5", "CAD"));
-        assertThat(result.amount()).isEqualByComparingTo(new BigDecimal("5"));
-    }
-
-    @Test
-    void shouldAllowToMultiplyTwoValuesWithBankerRounding() {
-        var result = Money.of("0.25", "CAD").times(Money.of("0.5", "CAD"));
-        assertThat(result).isEqualTo(Money.of("0.12", "CAD"));
+    void timesAFactorUsesBankersRounding() {
+        assertThat(Money.of("0.25", "CAD").times(new BigDecimal("0.5"))).isEqualTo(Money.of("0.12", "CAD"));
+        assertThat(Money.of("0.35", "CAD").times(new BigDecimal("0.5"))).isEqualTo(Money.of("0.18", "CAD"));
     }
 
     @Test
@@ -102,5 +96,10 @@ public class MoneyTest {
     @Test
     void equalValuesShouldReturnFalseWhenDeterminingWhichIsGreater() {
         assertFalse(Money.of("7.50", "CAD").isGreaterThan(Money.of("7.50", "CAD")));
+    }
+
+    @Test
+    void x() {
+        assertThat(Money.of("12.7", "CAD").toString()).isEqualTo("CAD 12.70");
     }
 }

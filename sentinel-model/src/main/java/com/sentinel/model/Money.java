@@ -26,33 +26,27 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money plus(Money other) {
-        if (isDifferentCurrency(other)) {
-            throw new IllegalArgumentException("Cannot add two different currencies");
-        }
+        requireSameCurrency(other);
         return new Money(this.amount.add(other.amount), other.currency);
     }
 
     public Money minus(Money other) {
-        if (isDifferentCurrency(other)) {
-            throw new IllegalArgumentException("Cannot add two different currencies");
-        }
-
+        requireSameCurrency(other);
         return new Money(this.amount.subtract(other.amount), other.currency);
     }
 
-    public Money times(Money other) {
-        if (isDifferentCurrency(other)) {
-            throw new IllegalArgumentException("Cannot remove two different currencies");
-        }
+    public Money times(BigDecimal factor) {
+        var result = amount.multiply(factor)
+                .setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN);
+        return new Money(result, currency);
+    }
 
-        return new Money(this.amount.multiply(other.amount).setScale( other.currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN), other.currency);
+    public Money times(long quantity) {
+        return times(BigDecimal.valueOf(quantity));
     }
 
     public boolean isGreaterThan(Money other) {
-        if (isDifferentCurrency(other)) {
-            throw new IllegalArgumentException("Cannot add two different currencies");
-        }
-
+        requireSameCurrency(other);
         return this.amount.compareTo(other.amount) > 0;
     }
 
@@ -60,13 +54,16 @@ public record Money(BigDecimal amount, Currency currency) {
         return this.amount.compareTo(BigDecimal.ZERO) < 0;
     }
 
+
     @Override
     public String toString() {
         return "%s %s".formatted(currency().getCurrencyCode(), amount.toPlainString());
     }
 
-    private boolean isDifferentCurrency(Money other) {
-        return !this.currency.equals(other.currency);
+    private void requireSameCurrency(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException("Same currency required");
+        }
     }
 
 }
