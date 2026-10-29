@@ -18,6 +18,9 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money plus(Money other) {
+        if (!areSameCurrencies(other)) {
+            throw new IllegalArgumentException("Cannot add two different currencies");
+        }
         return new Money(this.amount.add(other.amount), other.currency);
     }
 
@@ -38,5 +41,8 @@ public record Money(BigDecimal amount, Currency currency) {
         return "%s %f".formatted(currency().getCurrencyCode(), amount);
     }
 
+    private boolean areSameCurrencies(Money other) {
+        return this.currency.equals(other.currency);
+    }
 
 }
