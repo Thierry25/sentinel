@@ -45,7 +45,9 @@ public record Money(BigDecimal amount, Currency currency) {
         return new Money(this.amount.multiply(other.amount).setScale(2, RoundingMode.HALF_EVEN), other.currency);
     }
 
-    public boolean isGreaterThan(Money other) {return false;}
+    public boolean isGreaterThan(Money other) {
+        return this.amount.compareTo(other.amount) > 0;
+    }
 
     public boolean isNegative() {
         return this.amount.compareTo(BigDecimal.ZERO) < 0;
