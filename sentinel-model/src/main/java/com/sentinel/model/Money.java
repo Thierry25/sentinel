@@ -5,21 +5,24 @@ import java.math.RoundingMode;
 import java.util.Currency;
 
 public record Money(BigDecimal amount, Currency currency) {
+    public Money {
+        if (amount == null || currency == null) throw new IllegalArgumentException("Cannot have null values");
+        int digits = currency.getDefaultFractionDigits();
+        if (digits < 0) {
+            throw new IllegalArgumentException(currency + " is not a payment currency");
+        }
+        try {
+            amount = amount.setScale(digits, RoundingMode.UNNECESSARY);
+        } catch (ArithmeticException e) {
+            throw new IllegalArgumentException(
+                    "Too many decimals for %s: %s".formatted(currency, amount.toPlainString()), e);
+        }
+    }
     public static Money of(String amount, String currencyCode) {
         if (amount == null || currencyCode == null) {
             throw new IllegalArgumentException("Cannot have null values");
         }
-
-        var bigDecimalFromAmount = new BigDecimal(amount);
-        int decimalCount = Math.max(0, bigDecimalFromAmount.stripTrailingZeros().scale());
-
-        var currency = Currency.getInstance(currencyCode);
-        var currencyAllowedDecimals = currency.getDefaultFractionDigits();
-
-        if (decimalCount > currencyAllowedDecimals) {
-            throw new IllegalArgumentException("Too many decimals provided for this currency");
-        }
-        return new Money(bigDecimalFromAmount, currency);
+        return new Money(new BigDecimal(amount), Currency.getInstance(currencyCode));
     }
 
     public Money plus(Money other) {
@@ -39,13 +42,17 @@ public record Money(BigDecimal amount, Currency currency) {
 
     public Money times(Money other) {
         if (isDifferentCurrency(other)) {
-            throw new IllegalArgumentException("Cannot add two different currencies");
+            throw new IllegalArgumentException("Cannot remove two different currencies");
         }
 
-        return new Money(this.amount.multiply(other.amount).setScale(2, RoundingMode.HALF_EVEN), other.currency);
+        return new Money(this.amount.multiply(other.amount).setScale( other.currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN), other.currency);
     }
 
     public boolean isGreaterThan(Money other) {
+        if (isDifferentCurrency(other)) {
+            throw new IllegalArgumentException("Cannot add two different currencies");
+        }
+
         return this.amount.compareTo(other.amount) > 0;
     }
 
@@ -55,7 +62,7 @@ public record Money(BigDecimal amount, Currency currency) {
 
     @Override
     public String toString() {
-        return "%s %f".formatted(currency().getCurrencyCode(), amount);
+        return "%s %s".formatted(currency().getCurrencyCode(), amount.toPlainString());
     }
 
     private boolean isDifferentCurrency(Money other) {
