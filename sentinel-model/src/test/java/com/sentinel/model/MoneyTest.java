@@ -78,12 +78,18 @@ public class MoneyTest {
     @Test
     void shouldThrowExceptionOnMultiplyingDifferentCurrencies() {
         assertThrows(IllegalArgumentException.class, () -> Money.of("10", "CAD")
-                .minus(Money.of("2.25", "USD")));
+                .times(Money.of("2.25", "USD")));
     }
 
     @Test
     void shouldAllowToMultiplyTwoValues() {
         var result = Money.of("1", "CAD").times(Money.of("5", "CAD"));
         assertThat(result).isEqualTo(Money.of("5", "CAD"));
+    }
+
+    @Test
+    void shouldAllowToMultiplyTwoValuesWithBankerRounding() {
+        var result = Money.of("0.25", "CAD").times(Money.of("0.5", "CAD"));
+        assertThat(result).isEqualTo(Money.of("0.12", "CAD"));
     }
 }
