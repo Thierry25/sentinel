@@ -3,6 +3,7 @@ package com.sentinel.model;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Currency;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,12 +112,18 @@ public class MoneyTest {
         assertThat(Money.of("1500", "JPY")).hasToString("JPY 1500");
         assertThat(Money.of("1", "KWD")).hasToString("KWD 1.000");
     }
-    
+
     @Test void refusesToCompareDifferentCurrencies() {
         assertThrows(IllegalArgumentException.class, () -> Money.of("10", "USD").isGreaterThan(Money.of("10", "CAD")));
     }
 
     @Test void refusesCurrenciesWithoutMinorUnit()   {
         assertThrows(IllegalArgumentException.class, () -> Money.of("1", "XAU"));
+    }
+
+    @Test
+    void zeroHasTheCurrenciesDecimals() {
+        assertThat(Money.zero(Currency.getInstance("USD"))).hasToString("USD 0.00");
+        assertThat(Money.zero(Currency.getInstance("JPY"))).hasToString("JPY 0");
     }
 }
