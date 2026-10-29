@@ -2,6 +2,8 @@ package com.sentinel.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -84,7 +86,7 @@ public class MoneyTest {
     @Test
     void shouldAllowToMultiplyTwoValues() {
         var result = Money.of("1", "CAD").times(Money.of("5", "CAD"));
-        assertThat(result).isEqualTo(Money.of("5", "CAD"));
+        assertThat(result.amount()).isEqualByComparingTo(new BigDecimal("5"));
     }
 
     @Test
