@@ -5,6 +5,10 @@ import java.util.Currency;
 
 public record Money(BigDecimal amount, Currency currency) {
     public static Money of(String amount, String currencyCode) {
+        if (amount == null || currencyCode == null) {
+            throw new IllegalArgumentException("Cannot have null values");
+        }
+
         var bigDecimalFromAmount = new BigDecimal(amount);
         int decimalCount = Math.max(0, bigDecimalFromAmount.stripTrailingZeros().scale());
 
