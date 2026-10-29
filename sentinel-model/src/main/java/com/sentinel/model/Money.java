@@ -3,6 +3,7 @@ package com.sentinel.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
+import java.util.Objects;
 
 public record Money(BigDecimal amount, Currency currency) {
     public Money {
@@ -40,6 +41,7 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money times(BigDecimal factor) {
+        Objects.requireNonNull(factor, "factor");
         var result = amount.multiply(factor)
                 .setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN);
         return new Money(result, currency);
