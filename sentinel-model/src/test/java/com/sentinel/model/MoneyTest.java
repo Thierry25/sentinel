@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTest {
 
@@ -93,5 +92,15 @@ public class MoneyTest {
     void shouldAllowToMultiplyTwoValuesWithBankerRounding() {
         var result = Money.of("0.25", "CAD").times(Money.of("0.5", "CAD"));
         assertThat(result).isEqualTo(Money.of("0.12", "CAD"));
+    }
+
+    @Test
+    void shouldBeAbleToDetermineWhichValueIsGreater() {
+        assertTrue(Money.of("7.50", "CAD").isGreaterThan(Money.of("5", "CAD")));
+    }
+
+    @Test
+    void equalValuesShouldReturnFalseWhenDeterminingWhichIsGreater() {
+        assertFalse(Money.of("7.50", "CAD").isGreaterThan(Money.of("7.50", "CAD")));
     }
 }
