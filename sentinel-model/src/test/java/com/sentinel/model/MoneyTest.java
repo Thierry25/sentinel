@@ -18,4 +18,34 @@ public class MoneyTest {
         assertThrows(IllegalArgumentException.class, () -> Money.of("10.50", "CAD")
                 .plus(Money.of("2.25", "USD")));
     }
+
+    @Test
+    void shouldThrowExceptionWhenCurrencyShouldNotHaveDecimalsOtherThanZero() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("1.5", "JPY"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnTooManyDecimalsProvided() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10.6792", "CAD"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnUnknownCurrency() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10.6792", "XYZ"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnOnlyNullAmount() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of(null, "XYZ"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnOnlyCurrency() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of(null, "XYZ"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnBothNullValues() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of(null, null));
+    }
 }
