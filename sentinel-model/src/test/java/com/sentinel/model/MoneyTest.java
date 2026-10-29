@@ -3,6 +3,7 @@ package com.sentinel.model;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MoneyTest {
 
@@ -10,5 +11,11 @@ public class MoneyTest {
     void addsTwoAmountsInTheSameCurrency() {
         var sum = Money.of("10.50", "CAD").plus(Money.of("2.25", "CAD"));
         assertThat(sum).isEqualTo(Money.of("12.75", "CAD"));
+    }
+
+    @Test
+    void addTwoAmountsOfDifferentCurrenciesThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10.50", "CAD")
+                .plus(Money.of("2.25", "USD")));
     }
 }
