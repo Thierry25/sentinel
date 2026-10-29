@@ -37,7 +37,11 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money times(Money other) {
-        return null;
+        if (isDifferentCurrency(other)) {
+            throw new IllegalArgumentException("Cannot add two different currencies");
+        }
+
+        return new Money(this.amount.multiply(other.amount), other.currency);
     }
 
     public boolean isGreaterThan(Money other) {return false;}
