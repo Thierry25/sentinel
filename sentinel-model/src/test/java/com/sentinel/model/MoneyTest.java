@@ -99,7 +99,24 @@ public class MoneyTest {
     }
 
     @Test
-    void x() {
+    void printsTwoDecimalsForCad() {
         assertThat(Money.of("12.7", "CAD").toString()).isEqualTo("CAD 12.70");
+    }
+
+    @Test void scaleDoesNotMatterForEquality() {
+        assertThat(Money.of("2.50", "CAD").plus(Money.of("0.50", "CAD")))
+                .isEqualTo(Money.of("3", "CAD"));
+    }
+    @Test void printsZeroDecimalsForJpyAndThreeForKwd() {
+        assertThat(Money.of("1500", "JPY")).hasToString("JPY 1500");
+        assertThat(Money.of("1", "KWD")).hasToString("KWD 1.000");
+    }
+    
+    @Test void refusesToCompareDifferentCurrencies() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10", "USD").isGreaterThan(Money.of("10", "CAD")));
+    }
+
+    @Test void refusesCurrenciesWithoutMinorUnit()   {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("1", "XAU"));
     }
 }
