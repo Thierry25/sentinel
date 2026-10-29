@@ -29,7 +29,11 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money minus(Money other) {
-        return null;
+        if (!areSameCurrencies(other)) {
+            throw new IllegalArgumentException("Cannot add two different currencies");
+        }
+
+        return new Money(this.amount.subtract(other.amount), other.currency);
     }
 
     public Money times(Money other) {
