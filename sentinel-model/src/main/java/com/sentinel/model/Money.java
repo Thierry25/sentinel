@@ -42,7 +42,9 @@ public record Money(BigDecimal amount, Currency currency) {
 
     public boolean isGreaterThan(Money other) {return false;}
 
-    public boolean isNegative() {return false;}
+    public boolean isNegative() {
+        return this.amount.compareTo(BigDecimal.ZERO) < 0;
+    }
 
     @Override
     public String toString() {
