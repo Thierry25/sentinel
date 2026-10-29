@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MoneyTest {
 
@@ -58,12 +59,19 @@ public class MoneyTest {
     @Test
     void subtractOneAmountFromAnother() {
         var subs = Money.of("5.00", "CAD").minus(Money.of("7.50", "CAD"));
-        assertThat(subs).isEqualTo(Money.of("-2.50", "CAD"));
+        var result = Money.of("-2.50", "CAD");
+        assertThat(subs).isEqualTo(result);
+        assertTrue(result.isNegative());
     }
 
     @Test
     void shouldThrowExceptionOnSubtractingDifferentCurrencies() {
         assertThrows(IllegalArgumentException.class, () -> Money.of("10", "CAD")
                 .minus(Money.of("2.25", "USD")));
+    }
+
+    @Test
+    void canDetermineThatAValueIsNegative() {
+        assertTrue(Money.of("-2.50", "CAD").isNegative());
     }
 }
