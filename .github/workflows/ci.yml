@@ -30,6 +30,7 @@ jobs:
       - name: Build the code
         run: ./gradlew build
       - name: Uploads the build reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report
