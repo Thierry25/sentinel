@@ -74,4 +74,16 @@ public class MoneyTest {
     void canDetermineThatAValueIsNegative() {
         assertTrue(Money.of("-2.50", "CAD").isNegative());
     }
+
+    @Test
+    void shouldThrowExceptionOnMultiplyingDifferentCurrencies() {
+        assertThrows(IllegalArgumentException.class, () -> Money.of("10", "CAD")
+                .minus(Money.of("2.25", "USD")));
+    }
+
+    @Test
+    void shouldAllowToMultiplyTwoValues() {
+        var result = Money.of("1", "CAD").times(Money.of("5", "CAD"));
+        assertThat(result).isEqualTo(Money.of("5", "CAD"));
+    }
 }
