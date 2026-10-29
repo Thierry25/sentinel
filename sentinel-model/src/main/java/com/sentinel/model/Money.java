@@ -1,0 +1,42 @@
+package com.sentinel.model;
+
+import java.math.BigDecimal;
+import java.util.Currency;
+
+public record Money(BigDecimal amount, Currency currency) {
+    public static Money of(String amount, String currencyCode) {
+        var bigDecimalFromAmount = new BigDecimal(amount);
+        int decimalCount = Math.max(0, bigDecimalFromAmount.stripTrailingZeros().scale());
+
+        var currency = Currency.getInstance(currencyCode);
+        var currencyAllowedDecimals = currency.getDefaultFractionDigits();
+
+        if (decimalCount > currencyAllowedDecimals) {
+            throw new IllegalArgumentException("Too many decimals provided for this currency");
+        }
+        return new Money(bigDecimalFromAmount, currency);
+    }
+
+    public Money plus(Money other) {
+        return new Money(this.amount.add(other.amount), other.currency);
+    }
+
+    public Money minus(Money other) {
+        return null;
+    }
+
+    public Money times(Money other) {
+        return null;
+    }
+
+    public boolean isGreaterThan(Money other) {return false;}
+
+    public boolean isNegative() {return false;}
+
+    @Override
+    public String toString() {
+        return "%s %f".formatted(currency().getCurrencyCode(), amount);
+    }
+
+
+}
