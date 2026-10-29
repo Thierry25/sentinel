@@ -1,6 +1,7 @@
 package com.sentinel.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Currency;
 
 public record Money(BigDecimal amount, Currency currency) {
@@ -41,7 +42,7 @@ public record Money(BigDecimal amount, Currency currency) {
             throw new IllegalArgumentException("Cannot add two different currencies");
         }
 
-        return new Money(this.amount.multiply(other.amount), other.currency);
+        return new Money(this.amount.multiply(other.amount).setScale(2, RoundingMode.HALF_EVEN), other.currency);
     }
 
     public boolean isGreaterThan(Money other) {return false;}
