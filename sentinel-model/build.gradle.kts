@@ -1,3 +1,8 @@
 plugins {
     id("sentinel.java-conventions")
 }
+
+dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+}
