@@ -24,11 +24,11 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers(disabledWithoutDocker = true) // skipped on the macOS CI runner, which has no Docker
-@DisabledOnOs(value = OS.MAC, disabledReason = "Kafka container exits with code 1 on my Mac — revisit")
 class KafkaEventPublisherIT {
 
     @Container
-    static final KafkaContainer KAFKA = new KafkaContainer("apache/kafka:3.9.0")
+    static final KafkaContainer KAFKA = new KafkaContainer("apache/kafka:3.9.1")
+            .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094")
             .withLogConsumer(frame -> System.out.print("[kafka] " + frame.getUtf8String()));
 
     @Test

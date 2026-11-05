@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 @Component
 public class IngestStats {
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestStats.class);
-    private final ConcurrentMap<Integer, LongAdder> map = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, LongAdder> byPartition = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, LongAdder> perThread = new ConcurrentHashMap<>();
     private final LongAdder total = new LongAdder();
 
@@ -25,18 +24,23 @@ public class IngestStats {
     public void record(int partition) {
         total.increment();
         long now = total.sum();
-        map.computeIfAbsent(partition, key -> new LongAdder()).increment();
+        byPartition.computeIfAbsent(partition, key -> new LongAdder()).increment();
 
         var threadName = Thread.currentThread().getName();
         perThread.computeIfAbsent(threadName, key -> new LongAdder()).increment();
 
         if (now % 1000 == 0) {
-            LOGGER.info("Ingested {} events so far", total);
+            LOGGER.info("Ingested {} events so far, per partition: {}", now, perPartition());
         }
     }
 
     public Map<Integer, Long> perPartition() {
-        return map.entrySet().stream()
+        return byPartition.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().sum()));
+    }
+
+    public Map<String, Long> perThread() {
+        return perThread.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().sum()));
     }
 }

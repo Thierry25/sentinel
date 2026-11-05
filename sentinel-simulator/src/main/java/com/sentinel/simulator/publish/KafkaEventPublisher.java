@@ -32,6 +32,7 @@ public final class KafkaEventPublisher implements EventPublisher {
         var record = new ProducerRecord<>(TOPIC, event.accountId(), codec.encode(event));
         producer.send(record, (recordMetadata, e) -> {
             if (e != null) {
+                firstFailure.compareAndSet(null, e);
                 confirmed.completeExceptionally(e);
             } else {
                 confirmed.complete(null);
