@@ -2,10 +2,7 @@ package com.sentinel.drills;
 
 import com.sentinel.drills.entity.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -25,7 +22,8 @@ public class DrillQueries {
         var jpql = """
                     SELECT t FROM Trade t
                     WHERE t.account.desk.deskId =:deskId
-                    AND tradeTs BETWEEN :from AND :to
+                    AND t.tradeTs BETWEEN :from AND :to
+                    ORDER BY t.tradeTs
                 """;
         return em.createQuery(jpql, Trade.class)
                 .setParameter("deskId", deskId)
@@ -39,7 +37,7 @@ public class DrillQueries {
         var jqpl = """
                 SELECT new com.sentinel.drills.DeskTotal(t.account.desk.deskId, COUNT(t), SUM(t.qty * t.price))
                 FROM Trade t
-                WHERE tradeTs BETWEEN :from AND :to
+                WHERE t.tradeTs BETWEEN :from AND :to
                 GROUP BY t.account.desk.deskId
                 ORDER BY SUM(t.qty * t.price) DESC
                 """;
@@ -111,12 +109,16 @@ public class DrillQueries {
         Root<TradeOrder> root = cq.from(TradeOrder.class);
         Join<TradeOrder, Account> accountJoin = root.join("account");
 
+        List<Order> orderList = new ArrayList<>();
+        orderList.add(cb.desc(cb.count(root)));
+        orderList.add(cb.asc(accountJoin.get("accountId")));
+
         cq.select(cb.construct(AccountCount.class,
                 accountJoin.get("accountId"),
                 cb.count(root)
-        )).orderBy(cb.desc(cb.count(root)));
+        )).orderBy(orderList);
 
-        cq.where(cb.equal(root.get("status"), OrderStatus.CANCELLED.name()));
+        cq.where(cb.equal(root.get("status"), OrderStatus.CANCELLED));
 
         cq.groupBy(accountJoin.get("accountId"));
         cq.having(cb.ge(cb.count(root), minimum));
