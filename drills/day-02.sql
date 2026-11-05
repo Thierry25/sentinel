@@ -1,3 +1,4 @@
+-- Q1
 SELECT a.ACCOUNT_ID, COUNT(*) AS nb_of_orders, COUNT(CASE WHEN LIMIT_PRICE IS NULL THEN 1 END)
                               AS nb_of_market_orders, COALESCE(SUM(CASE WHEN LIMIT_PRICE IS NULL THEN QTY ELSE 0 END), 0) AS total_qty_market_orders
 FROM ACCOUNT a
@@ -5,6 +6,12 @@ FROM ACCOUNT a
 GROUP BY a.ACCOUNT_ID
 ORDER BY a.ACCOUNT_ID;
 
+-- Result
+-- A100	5	2	500
+-- A101	4	1	50
+-- A200	3	1	400
+-- A300	2	1	20000
+-- A400	1	1	0
 
 -- Q2
 SELECT a.ACCOUNT_ID FROM ACCOUNT a
@@ -16,26 +23,41 @@ WHERE EXISTS(
     SELECT 1 FROM ORDERS o1
     WHERE a.ACCOUNT_ID  = o1.ACCOUNT_ID
       AND o1.STATUS = 'FILLED'
-)
+);
+
+-- Result
+-- A200
 
 -- Q3
-SELECT o.SYMBOL FROM ORDERS o
-WHERE EXISTS (
-    SELECT 1 FROM ORDERS o1
-    WHERE o1.SYMBOL = o.SYMBOL
-)
-  AND NOT EXISTS (
+SELECT DISTINCT o.SYMBOL FROM ORDERS o
+WHERE NOT EXISTS (
     SELECT 1 FROM TRADE t
     WHERE o.SYMBOL = t.SYMBOL
-)
+);
+
+-- Result
+-- NVDA
 
 -- Q4
+-- NOT IN
+SELECT a.ACCOUNT_ID
+FROM ACCOUNT a
+WHERE a.ACCOUNT_ID NOT IN (SELECT ACCOUNT_ID FROM WATCHLIST);
+-- THERE may be some null values in one of the table, when combining both filters this may result in having no values returned
+
+-- Result
+-- no rows
 SELECT a.ACCOUNT_ID
 FROM ACCOUNT a
 WHERE NOT EXISTS (
     SELECT 1 FROM WATCHLIST w
     WHERE a.ACCOUNT_ID = w.ACCOUNT_ID
-)
+);
+-- Result
+-- A100
+-- A200
+-- A300
+-- A400
 
 -- Q5
 SELECT a.ACCOUNT_ID
@@ -49,4 +71,7 @@ WHERE EXISTS (
     SELECT 1 FROM ORDERS o
     WHERE a.ACCOUNT_ID = o.ACCOUNT_ID
       AND o.STATUS = 'CANCELLED'
-)ç
+);
+-- Result
+-- A101
+-- A200
