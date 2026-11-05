@@ -1,6 +1,8 @@
 -- Q1
-SELECT a.ACCOUNT_ID, COUNT(*) AS nb_of_orders, COUNT(CASE WHEN LIMIT_PRICE IS NULL THEN 1 END)
-                              AS nb_of_market_orders, COALESCE(SUM(CASE WHEN LIMIT_PRICE IS NULL THEN QTY ELSE 0 END), 0) AS total_qty_market_orders
+SELECT a.ACCOUNT_ID,
+       COUNT(o.ORDER_ID)                                                          AS nb_of_orders,
+       COUNT(CASE WHEN o.ORDER_ID IS NOT NULL AND o.LIMIT_PRICE IS NULL THEN 1 END) AS nb_of_market_orders,
+       COALESCE(SUM(CASE WHEN o.LIMIT_PRICE IS NULL THEN o.QTY END), 0)           AS total_qty_market_orders
 FROM ACCOUNT a
          LEFT JOIN ORDERS o ON o.ACCOUNT_ID = a.ACCOUNT_ID
 GROUP BY a.ACCOUNT_ID
@@ -11,7 +13,7 @@ ORDER BY a.ACCOUNT_ID;
 -- A101	4	1	50
 -- A200	3	1	400
 -- A300	2	1	20000
--- A400	1	1	0
+-- A400	0	0	0
 
 -- Q2
 SELECT a.ACCOUNT_ID FROM ACCOUNT a
@@ -43,7 +45,10 @@ WHERE NOT EXISTS (
 SELECT a.ACCOUNT_ID
 FROM ACCOUNT a
 WHERE a.ACCOUNT_ID NOT IN (SELECT ACCOUNT_ID FROM WATCHLIST);
--- THERE may be some null values in one of the table, when combining both filters this may result in having no values returned
+-- no rows
+-- Why: WATCHLIST.ACCOUNT_ID contains a NULL. x NOT IN (a, b, NULL) means x <> a AND x <> b AND x <> NULL.
+-- x <> NULL is UNKNOWN (never TRUE), so the whole condition is never TRUE → zero rows, for every account.
+-- NOT EXISTS has no such problem. Rule: never use NOT IN on a nullable column.
 
 -- Result
 -- no rows
